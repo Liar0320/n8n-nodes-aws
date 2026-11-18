@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+# Serialize every version of this package, not just repetitions of one tag.
+concurrency:
+  group: npm-release-n8n-nodes-aws
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Pin OIDC-capable npm
+        run: npm install --global npm@11.6.2
+      - run: npm ci
+      - name: Validate package and checked artifact
+        run: npm run validate
+      - name: Discover packed node in isolated n8n
+        run: npm run smoke:n8n
+      - name: Validate release and reject existing npm versions
+        id: release
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/release-metadata.mjs "$RELEASE_TAG"
+      - name: Publish the checked tarball using trusted publishing
+        env:
+          ARTIFACT: ${{ steps.release.outputs.artifact }}
+          DIST_TAG: ${{ steps.release.outputs.dist_tag }}
+        run: npm publish "$ARTIFACT" --ignore-scripts --registry=https://registry.npmjs.org/ --access public --provenance --tag "$DIST_TAG"
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Read checked-in release notes
+        id: release
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/release-metadata.mjs "$RELEASE_TAG" --notes-only
+      - name: Create matching GitHub Release after npm success
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_NOTES: ${{ steps.release.outputs.notes_file }}
+          PRERELEASE: ${{ steps.release.outputs.prerelease }}
+        shell: bash
+        run: |
+          args=("$RELEASE_TAG" --verify-tag --title "$RELEASE_TAG" --notes-file "$RELEASE_NOTES")
+          if [[ "$PRERELEASE" == true ]]; then
+            args+=(--prerelease --latest=false)
+          else
+            args+=(--latest)
+          fi
+          gh release create "${args[@]}"
