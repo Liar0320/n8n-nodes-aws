@@ -2,13 +2,15 @@
 
 ## Current state and authority
 
-The initial source version is `0.1.0`; it is not a claim of publication. The proposed GitHub repository could not be resolved and the npm package lookup returned `E404` during preparation. Neither result establishes who controls the repository, npm name, organization or package scope. Actual repository creation, tag creation, npm bootstrap/publishing, GitHub Releases and production changes are separate, explicitly authorized actions. Do not perform them merely to validate this repository.
+The initial source version is `0.1.0`; it is not a claim of publication. The user created `Liar0320/n8n-nodes-aws` as a private repository; authenticated admin access and Actions are verified. Publishing is still unauthorized and npm ownership remains unverified: an npm `E404` is not proof of control. Branch pushes and a review PR are authorized, not PR merging, release tags, npm publishing, GitHub Releases, visibility changes or production changes.
 
 Supported release tooling uses Node.js 24 and **npm >=11.5.1** for trusted publishing. GitHub Actions workflow `.github/workflows/release.yml` publishes through npm OIDC using the GitHub environment **`npm`**. There is no long-lived npm token fallback. Repository protection and environment approval are part of release authorization, not substitutes for package ownership.
 
+**Private-source blocker:** [npm provenance prerequisites](https://docs.npmjs.com/generating-provenance-statements/#prerequisites) require a public source repository and case-sensitive matching `repository` metadata. The repository is currently private and no `npm` GitHub environment is configured. Keep the provenance requirement; do not drop it, publish without it, or change visibility to bypass this blocker. An owner must separately authorize and resolve source visibility, protected-environment setup, npm bootstrap and the trusted publisher before a release can run.
+
 ## Owner bootstrap and trusted publisher
 
-A package owner must first verify control of the intended repository and npm name, correct `package.json` author/repository/homepage/bugs metadata, and ensure the npm account can publish a public package under that exact name. Check npm policies, two-factor requirements, organization membership and name availability directly. Do not assume the `liar0320` author field authenticates the current operator.
+A package owner must verify npm name control and ensure the npm account can publish a public package under that exact name. GitHub repository admin access is verified separately and does not establish npm permissions. Check npm policies, two-factor requirements, organization membership and name availability directly. Keep `package.json` repository metadata matched to the canonical `Liar0320/n8n-nodes-aws` identity; do not assume the author field authenticates the npm operator.
 
 For a new package, npm trusted-publisher configuration may require that the package already exist. An authorized owner must explicitly authenticate to npm under their own account, review the exact artifact and provenance settings, and perform any required initial publish as a separate bootstrap action. This is **not** permission to add a token to CI. If the initial `0.1.0` is bootstrapped manually, that immutable version is already consumed: configure OIDC and prepare a new version for the first automated publication instead of trying to republish `0.1.0`.
 

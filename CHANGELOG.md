@@ -17,7 +17,7 @@ This file records source changes. A dated version section is release metadata, n
 
 - Node.js 24.x, n8n 2.48.4 baseline, aligned `n8n-workflow` 2.48.2, AWS SDK 3.1171.0 and node CLI 0.57.4.
 - Only the commercial global CloudFront endpoint is supported. Other AWS services and n8n Cloud verification are not included.
-- Initial source version; publication, npm ownership and the proposed GitHub repository remain unverified prerequisites, not completed release actions.
+- Initial source version; the designated private GitHub repository and admin access are verified. Publication and npm ownership remain unverified; private-source provenance and release-environment setup are external release blockers.
 
 ### Verification
 

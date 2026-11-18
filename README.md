@@ -4,7 +4,7 @@ AWS CloudFront distribution discovery and cache invalidation for n8n. The packag
 
 ## Availability and compatibility
 
-This is an unreleased source project, version `0.1.0`. At preparation time the proposed GitHub repository could not be resolved and the npm package lookup returned `E404`. The repository URL and author in `package.json` are intended metadata, **not proof of repository control or npm ownership**. No package publication, remote repository creation, release tag, or production change is performed by this project setup. Verify ownership before installing a future public release or enabling publishing.
+This is an unreleased source project, version `0.1.0`. The user created the designated [GitHub repository](https://github.com/Liar0320/n8n-nodes-aws) as **private**; authenticated admin access and GitHub Actions availability are verified. npm lookup returned `E404`, which does **not** establish npm ownership or name availability. Branch pushes and a review PR are authorized; releases, visibility changes and production actions are not. The configured provenance release route requires a public source repository under npm's current rules, so it remains blocked while this repository is private; no visibility change or token fallback is performed.
 
 The development compatibility baseline is:
 
