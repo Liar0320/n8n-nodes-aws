@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tgz
+.env
+.env.*
+.n8n/
+coverage/
+.DS_Store
+.worktrees/
+.artifacts/
