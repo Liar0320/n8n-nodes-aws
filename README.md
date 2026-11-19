@@ -4,7 +4,7 @@ AWS CloudFront distribution discovery and cache invalidation for n8n. The packag
 
 ## Availability and compatibility
 
-This is an unreleased source project, version `0.1.0`. The user created the designated [GitHub repository](https://github.com/Liar0320/n8n-nodes-aws) as **private**; authenticated admin access and GitHub Actions availability are verified. npm lookup returned `E404`, which does **not** establish npm ownership or name availability. Branch pushes and a review PR are authorized; releases, visibility changes and production actions are not. The configured provenance release route requires a public source repository under npm's current rules, so it remains blocked while this repository is private; no visibility change or token fallback is performed.
+`n8n-nodes-aws@0.1.0` is published publicly on [npm](https://www.npmjs.com/package/n8n-nodes-aws) under `latest`. The owner-authorized local bootstrap used npm account `lich0320` without provenance; registry integrity matched the validated tarball. The [GitHub repository](https://github.com/Liar0320/n8n-nodes-aws) is public and PR #1 CI passed. Future automated releases retain GitHub OIDC/provenance requirements; this release does not authorize production actions or claim live AWS verification.
 
 The development compatibility baseline is:
 
@@ -22,7 +22,7 @@ Verified locally on Node 24.13.0 and npm 11.6.2: 80 deterministic tests, build, 
 
 ## Installation
 
-There is no published package to install yet. For a reviewed local checkout, use Node 24 and the repository lockfile:
+For self-hosted n8n, install `n8n-nodes-aws` through **Settings → Community Nodes**; the verified initial npm version is `0.1.0`. For a reviewed local checkout, use Node 24 and the repository lockfile:
 
 ```sh
 npm ci

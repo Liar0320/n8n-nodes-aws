@@ -37,8 +37,18 @@ The same packed artifact was installed into a separate throwaway community-node 
 
 ## Unverified external acceptance
 
-The user subsequently created the designated `https://github.com/Liar0320/n8n-nodes-aws` repository as **private**. `gh repo view` verifies `viewerPermission: ADMIN`, private visibility and initially empty refs; the Actions permissions API reports enabled Actions with read-only default workflow permissions. Remote existence/access is resolved. `npm view n8n-nodes-aws name version maintainers --json` previously returned structured E404; npm ownership remains unverified. The repository environments API currently returns no environments; a protected `npm` release environment is not configured.
+The designated `https://github.com/Liar0320/n8n-nodes-aws` repository is now public with owner authorization. Implementation PR #1 has passing CI. npm account `lich0320` is authenticated locally; the registry returned E404 for the package before bootstrap, which is not proof of name control. A protected GitHub `npm` environment and trusted-publisher mapping remain prerequisites for automated publishing.
 
 No approved non-production AWS distribution, scoped test paths or credentials were supplied. Therefore live discovery, live IAM/session-token acceptance and Create → Wait → Get reaching AWS-confirmed Completed remain unverified. No production AWS/Redis/workflow action was performed.
 
-Branch pushes and a review PR are authorized; no PR merge, release tag, npm publish, GitHub Release, repository visibility change or production n8n installation is authorized or performed. The OIDC/provenance publishing route still requires npm ownership/bootstrap/trusted-publisher mapping, a protected `npm` environment and explicit prerelease authorization. npm's current provenance prerequisites additionally require a public source repository; this designated repository remains private. Deterministic release tests do not prove a successful remote publication.
+The owner authorized one local public bootstrap of `n8n-nodes-aws@0.1.0` to `latest` without provenance. This authorization does not prove publication and does not authorize PR merging, release tags, GitHub Releases, production n8n installation or live AWS mutations. Record the registry version/integrity after the publish command succeeds. Future automated releases retain OIDC/provenance requirements, protected-environment setup and explicit release authorization. Deterministic tests and publish dry-runs do not prove a successful remote publication.
+
+## Verified local bootstrap publication
+
+On 2026-11-19, `npm publish .artifacts/package/n8n-nodes-aws-0.1.0.tgz --ignore-scripts --access public --tag latest --provenance=false --registry=https://registry.npmjs.org/` returned success after an npm browser authentication challenge. The first registry lookup briefly exposed the `0.0.0-stage` placeholder; no second upload was attempted. Subsequent authenticated registry queries confirmed version `0.1.0`, maintainer `lich0320`, and `latest: 0.1.0`.
+
+- SHA-512 integrity: `sha512-aP9VWYFiMOkNc9jGT3LprkovEbttLnAzOHEyGnGUveS+I/c6fy3LGWuU9FZHIiw7x7ZquA1K1BdNqc5RmB+f8w==`, matching the checked artifact.
+- Registry SHA-1: `8d8e271483e8647f3639a71337f56e914c8531ee`.
+- `npm run validate` passed: 80 tests, type checking, build and 27-file artifact allowlist; lint retained one advisory themed-icon warning.
+- A fresh smoke-runtime installation exceeded the command deadline. Retrying with the existing isolated n8n 2.48.4 runtime passed all five operations, 14 linked items and 14 deterministic offline SDK commands against this exact artifact; temporary test state was removed.
+- This bootstrap has no provenance. No tag, GitHub Release, production n8n installation or AWS mutation was performed. These post-publication documentation updates are not part of the immutable published tarball; do not rebuild and republish `0.1.0`.
