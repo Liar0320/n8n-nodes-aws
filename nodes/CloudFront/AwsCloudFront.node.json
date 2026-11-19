@@ -1,0 +1,17 @@
+{
+	"node": "n8n-nodes-aws.awsCloudFront",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Development", "Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{ "url": "https://github.com/liar0320/n8n-nodes-aws#credentials-and-permissions" }
+		],
+		"primaryDocumentation": [
+			{ "url": "https://github.com/liar0320/n8n-nodes-aws#operations" },
+			{ "url": "https://docs.aws.amazon.com/cloudfront/latest/APIReference/Welcome.html" },
+			{ "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/invalidation-specifying-objects.html" }
+		]
+	},
+	"alias": ["AWS", "CloudFront", "CDN", "Cache", "Invalidation"]
+}

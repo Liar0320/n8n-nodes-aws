@@ -1,0 +1,38 @@
+n8n-nodes-aws
+Copyright (c) 2026 liar0320
+Project source and original documentation: MIT; see LICENSE.
+
+PROVENANCE
+
+Code: This project's CloudFront node, credential integration, examples and
+supporting implementation are authored for this package. CloudFront protocol
+requests use the official @aws-sdk/client-cloudfront runtime dependency. A
+reference repository or n8n generated service implementation is not copied into
+this project as working protocol code. No reference generated implementation
+is redistributed as this package's implementation.
+
+Specification: AWS CloudFront API and Developer Guide documentation are used as
+behavioral references, not as copied source/specification artifacts. No generated
+reference specification is included in this repository. Relevant primary sources:
+https://docs.aws.amazon.com/cloudfront/latest/APIReference/Welcome.html
+https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html
+https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazoncloudfront.html
+
+Icon: The bundled generic vector icon is an original illustration for this
+package. It is not copied from the reference project, AWS Architecture Icons,
+or another icon library, and is not an AWS logo or trademark license grant.
+
+DEPENDENCIES AND MARKS
+
+Third-party packages retain their own copyright and license notices. In
+particular the official AWS SDK and Smithy packages are distributed under
+Apache-2.0, while n8n libraries/tools have their own applicable licenses. This
+project's MIT license does not replace those licenses or grant rights to vendor
+marks. Consult each installed dependency's LICENSE/NOTICE files; retain them
+when redistributing dependency code or bundled artifacts. This NOTICE is not
+an assertion that all dependencies are MIT or that a bundled third-party
+license inventory has been independently audited.
+
+Amazon Web Services, AWS and CloudFront are marks of their respective owners.
+n8n is a mark of its respective owner. Names identify interoperability only;
+this package is not affiliated with, endorsed by, or verified by AWS or n8n.

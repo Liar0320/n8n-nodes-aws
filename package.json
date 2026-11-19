@@ -1,0 +1,43 @@
+{
+  "name": "n8n-nodes-aws",
+  "version": "0.1.1",
+  "description": "n8n community node for AWS CloudFront distributions and invalidations",
+  "license": "MIT",
+  "author": { "name": "liar0320", "url": "https://github.com/Liar0320" },
+  "repository": { "type": "git", "url": "git+https://github.com/Liar0320/n8n-nodes-aws.git" },
+  "homepage": "https://github.com/Liar0320/n8n-nodes-aws#readme",
+  "bugs": { "url": "https://github.com/Liar0320/n8n-nodes-aws/issues" },
+  "keywords": ["n8n-community-node-package", "n8n", "aws", "cloudfront"],
+  "engines": { "node": ">=24 <25" },
+  "files": ["dist", "README.md", "LICENSE", "NOTICE", "CHANGELOG.md", "CONTRIBUTING.md", "docs", "examples"],
+  "scripts": {
+    "build": "n8n-node build",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts tests/*.test.mts",
+    "check:pack": "node scripts/check-pack.mjs",
+    "validate": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:pack",
+    "smoke:n8n": "node scripts/smoke-n8n.mjs"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": false,
+    "credentials": ["dist/credentials/AwsCloudFrontApi.credentials.js"],
+    "nodes": ["dist/nodes/CloudFront/AwsCloudFront.node.js"]
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "3.1171.0",
+    "@smithy/node-http-handler": "^4.7.1"
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "0.57.4",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.0.0",
+    "n8n-workflow": "2.48.2",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  },
+  "peerDependencies": { "n8n-workflow": "*" },
+  "publishConfig": { "access": "public" }
+}

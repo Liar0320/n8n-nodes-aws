@@ -1,0 +1,182 @@
+{
+  "name": "CloudFront - sanitized manual Create Wait Get",
+  "active": false,
+  "nodes": [
+    {
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "prepare-request",
+      "name": "Prepare Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Inactive, manual-only example. Replace every placeholder and select credentials on BOTH AWS nodes.\n// Use the same durable upstream event ID and exact paths when retrying the same change.\nconst distributionId = 'REPLACE_DISTRIBUTION_ID';\nconst paths = '/REPLACE_WITH_REVIEWED_PATH';\nconst callerReference = 'REPLACE_WITH_STABLE_UPSTREAM_EVENT_ID';\nconst pollSeconds = 10;\nconst timeoutSeconds = 900;\nif ([distributionId, paths, callerReference].some(value => value.includes('REPLACE_'))) {\n  throw new Error('Configure distribution, reviewed paths and a stable upstream event reference before running.');\n}\nif (!distributionId || !paths || !callerReference || !Number.isInteger(pollSeconds) || pollSeconds < 1 || !Number.isInteger(timeoutSeconds) || timeoutSeconds < 1) {\n  throw new Error('Invalid example configuration.');\n}\nconst startedAt = Date.now();\nreturn [{ json: { distributionId, paths, callerReference, pollSeconds, startedAt, deadline: startedAt + timeoutSeconds * 1000 } }];"
+      },
+      "notes": "One request per manual run. This is not connected to production. Replace placeholders with reviewed non-production values; preserve the same reference and exact paths on retries."
+    },
+    {
+      "id": "create-invalidation",
+      "name": "Create Invalidation",
+      "type": "n8n-nodes-aws.awsCloudFront",
+      "typeVersion": 1,
+      "position": [440, 0],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "operation": "createInvalidation",
+        "distributionIdMode": "manual",
+        "distributionId": "={{ $json.distributionId }}",
+        "paths": "={{ $json.paths }}",
+        "callerReference": "={{ $json.callerReference }}"
+      },
+      "notes": "Select your AWS CloudFront API credential. No credentials are embedded in this export. Create acceptance is NOT completion."
+    },
+    {
+      "id": "assess-result",
+      "name": "Assess AWS Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Single-request example: immutable request state survives Get output replacement and every Wait.\nconst request = $('Prepare Request').first(0, 0).json;\nconst created = $('Create Invalidation').first(0, 0).json;\nconst result = $input.first().json;\nconst state = { ...request, invalidationId: created.invalidationId ?? null, status: result.status ?? null };\nif (result.error) {\n  const safe = result.error;\n  return [{ json: { ...state, outcome: 'error', error: { message: 'CloudFront operation failed', code: typeof safe.code === 'string' ? safe.code : 'CloudFrontError', ...(Number.isInteger(safe.httpStatus) ? { httpStatus: safe.httpStatus } : {}), ...(typeof safe.requestId === 'string' ? { requestId: safe.requestId } : {}) } } }];\n}\nif (Date.now() >= request.deadline) return [{ json: { ...state, outcome: 'timeout' } }];\nif (typeof state.invalidationId !== 'string' || !state.invalidationId || result.invalidationId !== state.invalidationId || result.distributionId !== request.distributionId) {\n  return [{ json: { ...state, outcome: 'error', error: { message: 'CloudFront response identity mismatch', code: 'UnexpectedResponse' } } }];\n}\nif (result.status === 'Completed') return [{ json: { ...state, outcome: 'completed', confirmedAt: new Date().toISOString() } }];\nif (result.status === 'InProgress') return [{ json: { ...state, outcome: 'poll' } }];\nreturn [{ json: { ...state, outcome: 'error', error: { message: 'Unexpected CloudFront invalidation status', code: 'UnexpectedStatus' } } }];"
+      }
+    },
+    {
+      "id": "is-error",
+      "name": "Is Error",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [880, 0],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [{ "id": "condition-error", "leftValue": "={{ $json.outcome }}", "rightValue": "error", "operator": { "type": "string", "operation": "equals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "stop-error",
+      "name": "Stop - AWS or Response Error",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [1100, -220],
+      "parameters": { "errorType": "errorMessage", "errorMessage": "={{ 'CloudFront invalidation error: ' + ($json.error?.code ?? 'UnknownError') + '; requestId=' + ($json.error?.requestId ?? 'unavailable') }}" }
+    },
+    {
+      "id": "is-timeout",
+      "name": "Is Timeout",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1100, 60],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [{ "id": "condition-timeout", "leftValue": "={{ $json.outcome }}", "rightValue": "timeout", "operator": { "type": "string", "operation": "equals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "stop-timeout",
+      "name": "Stop - Observation Timeout",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [1320, -120],
+      "parameters": { "errorType": "errorMessage", "errorMessage": "={{ 'CloudFront observation deadline exceeded; completion is NOT confirmed. Saved invalidationId=' + ($json.invalidationId ?? 'unavailable') }}" },
+      "notes": "Timeout is not completion or cancellation. Reconcile the saved invalidation ID later instead of creating a new logical request."
+    },
+    {
+      "id": "is-completed",
+      "name": "Is AWS Completed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1320, 120],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [{ "id": "condition-completed", "leftValue": "={{ $json.outcome }}", "rightValue": "completed", "operator": { "type": "string", "operation": "equals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "confirmed-completed",
+      "name": "Confirmed Completed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, -20],
+      "parameters": { "mode": "runOnceForAllItems", "jsCode": "const state = $input.first().json;\nif (state.outcome !== 'completed' || state.status !== 'Completed') throw new Error('AWS completion was not confirmed.');\nreturn [{ json: state }];" },
+      "notes": "The only success terminal. Reached only after an AWS response with exact Completed status, before the observation deadline."
+    },
+    {
+      "id": "wait-before-poll",
+      "name": "Wait Before Poll",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1540, 240],
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": "={{ Math.max(1, Math.min($json.pollSeconds, Math.ceil(($json.deadline - Date.now()) / 1000))) }}",
+        "unit": "seconds"
+      },
+      "notes": "Carries distribution/invalidation IDs, original paths, stable CallerReference and the original absolute deadline. Never resets the deadline."
+    },
+    {
+      "id": "within-deadline",
+      "name": "Within Original Deadline",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1760, 240],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [{ "id": "condition-deadline", "leftValue": "={{ Date.now() < $json.deadline }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true", "singleValue": true } }],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "get-invalidation",
+      "name": "Get Invalidation",
+      "type": "n8n-nodes-aws.awsCloudFront",
+      "typeVersion": 1,
+      "position": [1980, 240],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "operation": "getInvalidation",
+        "distributionIdMode": "manual",
+        "distributionId": "={{ $json.distributionId }}",
+        "invalidationId": "={{ $json.invalidationId }}"
+      },
+      "notes": "Select the same AWS CloudFront API credential as Create. Get replaces JSON; Assess restores immutable request state from Prepare and the ID from Create."
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[{ "node": "Prepare Request", "type": "main", "index": 0 }]] },
+    "Prepare Request": { "main": [[{ "node": "Create Invalidation", "type": "main", "index": 0 }]] },
+    "Create Invalidation": { "main": [[{ "node": "Assess AWS Result", "type": "main", "index": 0 }]] },
+    "Assess AWS Result": { "main": [[{ "node": "Is Error", "type": "main", "index": 0 }]] },
+    "Is Error": { "main": [[{ "node": "Stop - AWS or Response Error", "type": "main", "index": 0 }], [{ "node": "Is Timeout", "type": "main", "index": 0 }]] },
+    "Is Timeout": { "main": [[{ "node": "Stop - Observation Timeout", "type": "main", "index": 0 }], [{ "node": "Is AWS Completed", "type": "main", "index": 0 }]] },
+    "Is AWS Completed": { "main": [[{ "node": "Confirmed Completed", "type": "main", "index": 0 }], [{ "node": "Wait Before Poll", "type": "main", "index": 0 }]] },
+    "Wait Before Poll": { "main": [[{ "node": "Within Original Deadline", "type": "main", "index": 0 }]] },
+    "Within Original Deadline": { "main": [[{ "node": "Get Invalidation", "type": "main", "index": 0 }], [{ "node": "Stop - Observation Timeout", "type": "main", "index": 0 }]] },
+    "Get Invalidation": { "main": [[{ "node": "Assess AWS Result", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "tags": []
+}
