@@ -52,3 +52,15 @@ On 2026-11-19, `npm publish .artifacts/package/n8n-nodes-aws-0.1.0.tgz --ignore-
 - `npm run validate` passed: 80 tests, type checking, build and 27-file artifact allowlist; lint retained one advisory themed-icon warning.
 - A fresh smoke-runtime installation exceeded the command deadline. Retrying with the existing isolated n8n 2.48.4 runtime passed all five operations, 14 linked items and 14 deterministic offline SDK commands against this exact artifact; temporary test state was removed.
 - This bootstrap has no provenance. No tag, GitHub Release, production n8n installation or AWS mutation was performed. These post-publication documentation updates are not part of the immutable published tarball; do not rebuild and republish `0.1.0`.
+
+## Verified GitHub OIDC release 0.1.1
+
+On 2026-11-19, the owner authorized the next package release. Commit `8432657ec2c3cf50c0113ebd0b3924c9c303dfc1` and tag `v0.1.1` triggered [Release run 44445695038](https://github.com/Liar0320/n8n-nodes-aws/actions/runs/44445695038). Both `publish` and `github-release` jobs succeeded. No PR merge or AWS mutation was performed.
+
+- The registry confirmed version `0.1.1` and `latest: 0.1.1`; its SHA-512 integrity matched the checked local/CI artifact: `sha512-ziowmdNOd7h8aIGxWjXoyTwmrwQLvSeB+pkipnz7rvpjqnbrucJLWdAxB3+hyPiXWN16oPGcG9Ag65cTNfb3qg==`.
+- Registry publisher metadata identifies `GitHub Actions` with `trustedPublisher.id: github`, and `dist.attestations.provenance.predicateType` is `https://slsa.dev/provenance/v1`.
+- [GitHub Release v0.1.1](https://github.com/Liar0320/n8n-nodes-aws/releases/tag/v0.1.1) is published, not draft or prerelease. An initial version lookup briefly returned E404; direct registry verification subsequently succeeded without any repeated publish.
+- Local validation passed 80 tests, build, typecheck, package checks and the isolated n8n five-operation smoke. CI repeated validation and packed n8n smoke successfully.
+- At release preflight, GitHub environment `npm` allowed tag pattern `v*`, had administrator bypass enabled and no `required_reviewers` rule in the saved API response. The release was not held for human environment approval; this is not evidence of an approval gate being exercised.
+- CI emitted advisory warnings for checkout/setup-node v4 action runtimes and the existing themed-icon warning; these did not fail this release.
+- This section was added after publication and is not part of the immutable `0.1.1` tarball. Live AWS behavior remains unverified.

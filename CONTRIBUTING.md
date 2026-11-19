@@ -26,4 +26,6 @@ Use a feature branch and reviewable commits. Include the intended behavior, comp
 
 A source change is not a release. Do not create remote repositories, tags, GitHub Releases or npm versions as part of routine development. Read [release procedures](docs/releases.md) before a separately authorized release. npm ownership and repository control must be verified first; proposed metadata and an npm `E404` do not establish them. Never bypass OIDC with a token fallback when automated publishing fails.
 
+Release version changes must pass CI and merge into `main` before tagging. Create tags from the updated `main` checkout; the release workflow rejects commits outside `origin/main` history. Preserve existing tags and immutable npm versions, including releases created before this guard was introduced.
+
 The owner separately authorized one local public bootstrap of `n8n-nodes-aws@0.1.0` to `latest` without provenance. This exception does not weaken CI's OIDC/provenance requirements, authorize a token fallback in Actions, or permit additional releases or production changes. A successful immutable version must never be republished.

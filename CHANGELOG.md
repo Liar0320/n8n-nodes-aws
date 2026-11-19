@@ -2,6 +2,13 @@
 
 This file records source changes. Initial version `0.1.0` was published publicly to npm `latest` on 2026-11-19 through the owner-authorized local bootstrap without provenance; registry integrity was verified. Live AWS integration remains unverified.
 
+## Unreleased
+
+### Fixed
+
+- Require release-tag commits to belong to `origin/main` history before dependency installation or publishing; reject shallow or unavailable source history.
+- Replace release-operator notes and stale version claims in the README with installation and tested compatibility information.
+
 ## [0.1.1] - 2026-11-19
 
 ### Changed

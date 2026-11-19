@@ -4,9 +4,9 @@ AWS CloudFront distribution discovery and cache invalidation for n8n. The packag
 
 ## Availability and compatibility
 
-`n8n-nodes-aws@0.1.0` is published publicly on [npm](https://www.npmjs.com/package/n8n-nodes-aws) under `latest`. The owner-authorized local bootstrap used npm account `lich0320` without provenance; registry integrity matched the validated tarball. The [GitHub repository](https://github.com/Liar0320/n8n-nodes-aws) is public and PR #1 CI passed. Future automated releases retain GitHub OIDC/provenance requirements; this release does not authorize production actions or claim live AWS verification.
+Available on [npm](https://www.npmjs.com/package/n8n-nodes-aws) for self-hosted n8n. Install the latest published version through **Settings → Community Nodes**. See [GitHub Releases](https://github.com/Liar0320/n8n-nodes-aws/releases) for version notes and build provenance.
 
-The development compatibility baseline is:
+Tested compatibility baseline:
 
 | Component | Version / scope |
 | --- | --- |
@@ -18,11 +18,11 @@ The development compatibility baseline is:
 
 Supported deployment scope is **self-hosted n8n**, not n8n Cloud verification. The official AWS SDK runtime dependency is intentional; the package is not a verified Cloud-installable package. Dependency ranges are not a claim that every n8n release has been exercised. Use the pinned baseline for initial validation; see the [changelog](CHANGELOG.md) for release status. This package supports only the AWS **commercial global CloudFront endpoint** `cloudfront.amazonaws.com`, signed with SigV4 region `us-east-1`. It does not expose endpoint/region overrides and does not support China or GovCloud partitions.
 
-Verified locally on Node 24.13.0 and npm 11.6.2: 80 deterministic tests, build, packed-artifact checks, and all five operations through n8n 2.48.4's real CLI workflow engine (14 linked input items / 14 intercepted SDK commands). The installed node and masked credential fields were also inspected in the n8n editor. This is offline runtime verification, not live AWS or npm publication evidence; see [verification details](docs/verification.md).
+The package is tested with the real n8n workflow engine using isolated, offline AWS responses. Live AWS account permissions and distribution behavior must be validated in your environment; see [verification details](docs/verification.md).
 
 ## Installation
 
-For self-hosted n8n, install `n8n-nodes-aws` through **Settings → Community Nodes**; the verified initial npm version is `0.1.0`. For a reviewed local checkout, use Node 24 and the repository lockfile:
+In self-hosted n8n, open **Settings → Community Nodes → Install** and enter `n8n-nodes-aws`. For local development, use Node.js 24 and the repository lockfile:
 
 ```sh
 npm ci
@@ -35,10 +35,10 @@ For a non-production self-hosted n8n development instance, install the resulting
 ```sh
 mkdir -p ~/.n8n/nodes
 cd ~/.n8n/nodes
-npm install /absolute/path/to/checkout/.artifacts/package/n8n-nodes-aws-0.1.0.tgz
+npm install "/absolute/path/to/checkout/.artifacts/package/n8n-nodes-aws-<version>.tgz"
 ```
 
-Use the actual tarball name emitted by the pack check under `.artifacts/package/`. Container deployments need the installed files in the persistent community-node directory or in a reviewed image; installing inside an ephemeral container does not survive recreation. Community-node loading must be enabled. After a verified publication, self-hosted administrators can install the verified package/version through **Settings → Community Nodes**. This package does not support n8n Cloud installation or claim Cloud verification.
+Use the exact tarball path emitted by `npm run check:pack`. Container deployments need the installed files in a persistent community-node directory or a reviewed image; installing inside an ephemeral container does not survive recreation. Community-node loading must be enabled. This package does not support n8n Cloud installation or claim Cloud verification.
 
 ## Credentials and least privilege
 

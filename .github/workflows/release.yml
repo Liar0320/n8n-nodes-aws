@@ -23,7 +23,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
+      - name: Require release commit in main history
+        run: node scripts/check-release-source.mjs
       - name: Require public source for npm provenance
         env:
           SOURCE_VISIBILITY: ${{ github.event.repository.visibility }}
